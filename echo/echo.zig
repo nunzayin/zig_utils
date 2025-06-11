@@ -2,6 +2,7 @@ const std = @import("std");
 
 pub fn main() !void {
     var debugAllocator = std.heap.DebugAllocator(.{}).init;
+    defer _ = debugAllocator.deinit();
     const allocator = debugAllocator.allocator();
     const stdout = std.io.getStdOut().writer();
     var argIter = try std.process.argsWithAllocator(allocator);
