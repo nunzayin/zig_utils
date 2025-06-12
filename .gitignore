@@ -1,7 +1,2 @@
-*
-!Makefile
-!*.*
-*.o
-!*/
 .zig-cache/
 zig-out/
