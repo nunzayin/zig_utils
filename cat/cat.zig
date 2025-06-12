@@ -1,7 +1,7 @@
 const std = @import("std");
 const stdout = std.io.getStdOut().writer();
 const cwd = std.fs.cwd();
-const BUFFER_SIZE = 4096;
+const BUFFER_SIZE = 262144;
 
 pub fn main() !void {
     var debug_allocator = std.heap.DebugAllocator(.{}).init;
