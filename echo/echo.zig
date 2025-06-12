@@ -1,20 +1,20 @@
 const std = @import("std");
 
 pub fn main() !void {
-    var debugAllocator = std.heap.DebugAllocator(.{}).init;
-    defer std.debug.assert(debugAllocator.deinit() == .ok);
-    const allocator = debugAllocator.allocator();
+    var debug_allocator = std.heap.DebugAllocator(.{}).init;
+    defer std.debug.assert(debug_allocator.deinit() == .ok);
+    const allocator = debug_allocator.allocator();
 
     const stdout = std.io.getStdOut().writer();
 
-    var argIter = try std.process.argsWithAllocator(allocator);
-    defer argIter.deinit();
+    var arg_iter = try std.process.argsWithAllocator(allocator);
+    defer arg_iter.deinit();
 
     var args = std.ArrayList(u8).init(allocator);
     defer args.deinit();
 
-    _ = argIter.skip();
-    while (argIter.next()) |arg| {
+    _ = arg_iter.skip();
+    while (arg_iter.next()) |arg| {
         try args.appendSlice(arg[0..arg.len]);
         try args.append(" "[0]);
     }

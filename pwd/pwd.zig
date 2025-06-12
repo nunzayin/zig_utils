@@ -2,9 +2,9 @@ const std = @import("std");
 const stdout = std.io.getStdOut().writer();
 
 pub fn main() !void {
-    var debugAllocator = std.heap.DebugAllocator(.{}).init;
-    defer std.debug.assert(debugAllocator.deinit() == .ok);
-    const allocator = debugAllocator.allocator();
+    var debug_allocator = std.heap.DebugAllocator(.{}).init;
+    defer std.debug.assert(debug_allocator.deinit() == .ok);
+    const allocator = debug_allocator.allocator();
 
     var pwd = std.ArrayList(u8)
         .fromOwnedSlice(allocator, try std.fs.realpathAlloc(allocator, "."));
