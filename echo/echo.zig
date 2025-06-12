@@ -2,7 +2,7 @@ const std = @import("std");
 
 pub fn main() !void {
     var debugAllocator = std.heap.DebugAllocator(.{}).init;
-    defer _ = debugAllocator.deinit();
+    defer std.debug.assert(debugAllocator.deinit() == .ok);
     const allocator = debugAllocator.allocator();
 
     const stdout = std.io.getStdOut().writer();

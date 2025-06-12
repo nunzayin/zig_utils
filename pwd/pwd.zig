@@ -3,7 +3,7 @@ const stdout = std.io.getStdOut().writer();
 
 pub fn main() !void {
     var debugAllocator = std.heap.DebugAllocator(.{}).init;
-    defer _ = debugAllocator.deinit();
+    defer std.debug.assert(debugAllocator.deinit() == .ok);
     const allocator = debugAllocator.allocator();
 
     var pwd = std.ArrayList(u8)
