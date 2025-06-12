@@ -6,9 +6,10 @@ pub fn main() !void {
     defer _ = debugAllocator.deinit();
     const allocator = debugAllocator.allocator();
 
-    const pwd = try std.fs.realpathAlloc(allocator, ".");
-    defer allocator.free(pwd);
+    var pwd = std.ArrayList(u8)
+        .fromOwnedSlice(allocator, try std.fs.realpathAlloc(allocator, "."));
+    defer pwd.deinit();
+    try pwd.append("\n"[0]);
 
-    try stdout.writeAll(pwd);
-    try stdout.writeAll("\n");
+    try stdout.writeAll(pwd.items);
 }
