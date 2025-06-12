@@ -17,23 +17,20 @@ pub fn main() !void {
 
     while (arg_iter.next()) |arg| {
         no_arguments = false;
-        cat(arg, allocator);
+        try cat(arg, allocator);
     }
-    if (no_arguments) cat("-", allocator);
+    if (no_arguments) try cat("-", allocator);
 }
 
-fn cat(file_path: [:0]const u8, allocator: std.mem.Allocator) void {
-    faulty_cat(file_path, allocator) catch |err| {
-        std.debug.print("{}", .{err});
-    };
-}
-
-fn faulty_cat(file_path: [:0]const u8, allocator: std.mem.Allocator) !void {
+fn cat(file_path: [:0]const u8, allocator: std.mem.Allocator) !void {
     const file =
         if (std.mem.eql(u8, file_path, "-"))
             std.io.getStdIn()
         else
-            try cwd.openFileZ(file_path, .{});
+            cwd.openFileZ(file_path, .{}) catch |err| {
+                std.debug.print("{s}: {}\n", .{ file_path, err });
+                return;
+            };
     defer file.close();
 
     var buffer = try allocator.alloc(u8, BUFFER_SIZE);
@@ -42,7 +39,10 @@ fn faulty_cat(file_path: [:0]const u8, allocator: std.mem.Allocator) !void {
     var bytes_read: usize = undefined;
 
     while (true) {
-        bytes_read = try file.readAll(buffer);
+        bytes_read = file.readAll(buffer) catch |err| {
+            std.debug.print("{s}: {}\n", .{ file_path, err });
+            return;
+        };
         try stdout.writeAll(buffer[0..bytes_read]);
         if (bytes_read < BUFFER_SIZE) return;
     }
