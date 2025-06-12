@@ -6,6 +6,9 @@ pub fn main() !void {
     defer _ = debugAllocator.deinit();
     const allocator = debugAllocator.allocator();
 
-    try stdout.writeAll(try std.fs.realpathAlloc(allocator, "."));
+    const pwd = try std.fs.realpathAlloc(allocator, ".");
+    defer allocator.free(pwd);
+
+    try stdout.writeAll(pwd);
     try stdout.writeAll("\n");
 }
