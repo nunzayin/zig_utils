@@ -5,7 +5,7 @@ pub fn main() !void {
     defer std.debug.assert(debug_allocator.deinit() == .ok);
     const allocator = debug_allocator.allocator();
 
-    const stdout = std.io.getStdOut().writer();
+    const stdout = std.io.getStdOut();
 
     var arg_iter = try std.process.argsWithAllocator(allocator);
     defer arg_iter.deinit();

@@ -1,5 +1,5 @@
 const std = @import("std");
-const stdout = std.io.getStdOut().writer();
+const stdout = std.io.getStdOut();
 const cwd = std.fs.cwd();
 const MAX_BUFFER_SIZE = 262144;
 

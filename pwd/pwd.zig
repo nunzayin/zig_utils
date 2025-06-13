@@ -1,5 +1,5 @@
 const std = @import("std");
-const stdout = std.io.getStdOut().writer();
+const stdout = std.io.getStdOut();
 
 pub fn main() !void {
     var debug_allocator = std.heap.DebugAllocator(.{}).init;

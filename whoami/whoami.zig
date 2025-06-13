@@ -1,5 +1,5 @@
 const std = @import("std");
-const stdout = std.io.getStdOut().writer();
+const stdout = std.io.getStdOut();
 
 pub fn main() !void {
     try stdout.writeAll(std.mem.span(std.c.getpwuid(std.os.linux.geteuid()).?.name.?));
