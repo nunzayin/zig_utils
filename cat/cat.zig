@@ -1,7 +1,7 @@
 const std = @import("std");
 const stdout = std.io.getStdOut().writer();
 const cwd = std.fs.cwd();
-const BUFFER_SIZE = 262144;
+const MAX_BUFFER_SIZE = 262144;
 
 pub fn main() !void {
     var debug_allocator = std.heap.DebugAllocator(.{}).init;
@@ -23,8 +23,10 @@ pub fn main() !void {
 }
 
 fn cat(file_path: [:0]const u8, allocator: std.mem.Allocator) !void {
+    const is_stdin = std.mem.eql(u8, file_path, "-");
+
     const file =
-        if (std.mem.eql(u8, file_path, "-"))
+        if (is_stdin)
             std.io.getStdIn()
         else
             cwd.openFileZ(file_path, .{}) catch |err| {
@@ -33,7 +35,17 @@ fn cat(file_path: [:0]const u8, allocator: std.mem.Allocator) !void {
             };
     defer file.close();
 
-    var buffer = try allocator.alloc(u8, BUFFER_SIZE);
+    const buffer_size = blk: {
+        if (is_stdin) break :blk MAX_BUFFER_SIZE;
+        if (file.metadata()) |metadata|
+            break :blk @min(metadata.size(), MAX_BUFFER_SIZE)
+        else |err| {
+            std.debug.print("{s}: {} (max buffer size will be used)\n", .{ file_path, err });
+            break :blk MAX_BUFFER_SIZE;
+        }
+    };
+
+    var buffer = try allocator.alloc(u8, buffer_size);
     defer allocator.free(buffer);
 
     var bytes_read: usize = undefined;
@@ -44,6 +56,6 @@ fn cat(file_path: [:0]const u8, allocator: std.mem.Allocator) !void {
             return;
         };
         try stdout.writeAll(buffer[0..bytes_read]);
-        if (bytes_read < BUFFER_SIZE) return;
+        if (bytes_read < buffer.len) return;
     }
 }
