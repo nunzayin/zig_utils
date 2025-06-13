@@ -1,14 +1,18 @@
 const std = @import("std");
+
 const stdout = std.io.getStdOut();
 const cwd = std.fs.cwd();
+
+var debug_allocator = std.heap.DebugAllocator(.{}).init;
+const allocator = debug_allocator.allocator();
+
 const MAX_BUFFER_SIZE = 262144;
+
 var checksum_buffer: [64]u8 = undefined;
 var checksum_buffer_stream = std.io.fixedBufferStream(&checksum_buffer);
 
 pub fn main() !void {
-    var debug_allocator = std.heap.DebugAllocator(.{}).init;
     defer std.debug.assert(debug_allocator.deinit() == .ok);
-    const allocator = debug_allocator.allocator();
 
     var arg_iter = try std.process.argsWithAllocator(allocator);
     defer arg_iter.deinit();
@@ -19,12 +23,12 @@ pub fn main() !void {
 
     while (arg_iter.next()) |arg| {
         no_arguments = false;
-        try sha256Digest(arg, allocator);
+        try sha256Digest(arg);
     }
-    if (no_arguments) try sha256Digest("-", allocator);
+    if (no_arguments) try sha256Digest("-");
 }
 
-fn sha256Digest(file_path: [:0]const u8, allocator: std.mem.Allocator) !void {
+fn sha256Digest(file_path: [:0]const u8) !void {
     const is_stdin = std.mem.eql(u8, file_path, "-");
 
     const file =

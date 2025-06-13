@@ -1,12 +1,15 @@
 const std = @import("std");
+
 const stdout = std.io.getStdOut();
 const cwd = std.fs.cwd();
+
 const MAX_BUFFER_SIZE = 262144;
 
+var debug_allocator = std.heap.DebugAllocator(.{}).init;
+const allocator = debug_allocator.allocator();
+
 pub fn main() !void {
-    var debug_allocator = std.heap.DebugAllocator(.{}).init;
     defer std.debug.assert(debug_allocator.deinit() == .ok);
-    const allocator = debug_allocator.allocator();
 
     var arg_iter = try std.process.argsWithAllocator(allocator);
     defer arg_iter.deinit();
@@ -17,12 +20,12 @@ pub fn main() !void {
 
     while (arg_iter.next()) |arg| {
         no_arguments = false;
-        try cat(arg, allocator);
+        try cat(arg);
     }
-    if (no_arguments) try cat("-", allocator);
+    if (no_arguments) try cat("-");
 }
 
-fn cat(file_path: [:0]const u8, allocator: std.mem.Allocator) !void {
+fn cat(file_path: [:0]const u8) !void {
     const is_stdin = std.mem.eql(u8, file_path, "-");
 
     const file =
